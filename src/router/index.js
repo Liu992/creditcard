@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Signup from '@/view/Signup'
+import Login from '@/view/Login'
 import TaskList from '@/view/TaskList'
 import Introduce from '@/view/Introduce'
 import CreditCard from '@/view/CreditCard'
@@ -13,6 +14,15 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+    {
+      path: '/login',
+      name: "Login",
+      component: Login,
+      meta: {
+        title:"登录",
+        content: 'disable'
+      }
+    },
     {
       path: '/signup',
       name: "Signup",

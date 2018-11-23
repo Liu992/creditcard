@@ -1,13 +1,13 @@
 <template>
   <div class="tasklist">
     <ul class="task_ul">
-      <li v-for="(item, index) in tasklist" :key="index" @click="toInvitation(index)">
+      <li v-for="(item) in tasklist" :key="item.id" @click="toInvitation(item.id)">
         <div class="li_l">
-          <span class="li_l_tip">推广信用卡，并协助1位客户成功下卡</span>
-          <span class="li_l_text">佣金30元，办卡用户20元</span>
+          <span class="li_l_tip">{{item.title}}</span>
+          <span class="li_l_text"><b v-for="(item1, index1) in item.rules" :key="index1">{{item1.key}},</b></span>
         </div>
         <div class="li_r">
-          0/1 <i class="el-icon-arrow-right"></i>
+          <i class="el-icon-arrow-right"></i>
         </div>
       </li>
     </ul>
@@ -18,83 +18,81 @@
 </template>
 
 <script>
+import * as service from "../service/index.js";
 export default {
-  data () {
+  data() {
     return {
-      tasklist:[]
-    }
+      tasklist: []
+    };
   },
   methods: {
-    toInvitation (id) {
-      this.$router.push("/introduce/"+id+"")
+    toInvitation(id) {
+      this.$router.push("/introduce/" + id + "");
+    },
+    getTask() {
+      service.taskList().then(res => {
+        if (res.code === 200) {
+          this.tasklist = res.data.rows
+        } else {
+
+        }
+        console.log(res);
+      });
     }
   },
-  mounted () {
-    this.tasklist = [
-      {
-        assistNum: 10,
-        commission: 30,
-        userAmount: 20
-      },
-      {
-        assistNum: 11,
-        commission: 31,
-        userAmount: 21
-      },
-      {
-        assistNum: 12,
-        commission: 32,
-        userAmount: 23
-      }
-    ]
+  mounted() {
+    this.getTask()
   }
 };
 </script>
 
 <style scoped>
-.tasklist{
+.tasklist {
   width: 100%;
 }
-.tasklist .task_ul{
+.tasklist .task_ul {
   width: 100%;
-  border-bottom:1px solid #EDEDED;
+  border-bottom: 1px solid #ededed;
 }
-.tasklist .task_ul li{
+.tasklist .task_ul li {
   width: 100%;
   padding: 18px 20px;
-  border-top:1px solid #EDEDED;
+  border-top: 1px solid #ededed;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.tasklist .task_ul li .li_l span{
+.tasklist .task_ul li .li_l span {
   display: block;
 }
-.tasklist .task_ul li .li_l .li_l_tip{
+.tasklist .task_ul li .li_l .li_l_tip {
   font-size: 12px;
-  color:#979797;
+  color: #979797;
 }
-.tasklist .task_ul li .li_l .li_l_text{
-  color:#666666;
+.tasklist .task_ul li .li_l .li_l_text {
+  color: #666666;
   font-size: 20px;
 }
-.tasklist .task_ul li .li_r{
-  font-size: 12px;
-  color:#979797;
+.tasklist .task_ul li .li_l .li_l_text b{
+  font-weight: 400;
 }
-.tasklist .more{
+.tasklist .task_ul li .li_r {
+  font-size: 12px;
+  color: #979797;
+}
+.tasklist .more {
   width: 100%;
-  margin-top:20px;
+  margin-top: 20px;
   padding: 0 20px;
 }
-.tasklist .more_btn{
+.tasklist .more_btn {
   width: 100%;
   height: 34px;
-  background: #EDEDED;
-  border:none;
+  background: #ededed;
+  border: none;
   outline: none;
   border-radius: 2px;
   font-size: 12px;
-  color:#979797;
+  color: #979797;
 }
 </style>

@@ -15,9 +15,9 @@
         </thead>
         <tbody>
           <tr v-for="(item, index) in userList" :key="index">
-            <td>{{item.name}}</td>
-            <td>{{item.date}}</td>
-            <td>{{item.state==="success"?"成功":"未下卡"}}</td>
+            <td>{{item.mobile}}</td>
+            <td>{{item.created_at.split("T")[0]}}</td>
+            <td>{{state[item.states]}}</td>
           </tr>
         </tbody>
       </table>
@@ -26,31 +26,34 @@
 </template>
 
 <script>
+import * as service from '../service/index.js';
 export default {
   data () {
     return {
       userNum: 0,
-      userList: []
+      userList: [],
+      state: {
+        "none": "未下卡",
+        "pending":"审核中",
+        "success":"成功",
+        "failed":"失败"
+      }
+    }
+  },
+  methods : {
+    getInvitation () {
+      service.getUserList()
+      .then(res => {
+        if (res.code === 200) {
+          this.userNum = res.data.count
+          this.userList = res.data.rows
+        }
+        console.log(res)
+      })
     }
   },
   mounted () {
-    this.userList = [
-      {
-        name: "123 9999 1212",
-        date: "2018-10-19",
-        state: 'success'
-      },
-      {
-        name: "111 2222 3333",
-        date: "2018-10-10",
-        state: 'fail'
-      },
-      {
-        name: "123 9999 0000",
-        date: "2018-10-01",
-        state: 'success'
-      }
-    ]
+    this.getInvitation()
   }
 };
 </script>

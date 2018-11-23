@@ -27,9 +27,19 @@
         <li>
           <span class="title">手机号</span>
           <div class="inp">
-            <input type="text" placeholder="请输入申请人手机号" v-model="userMessage.phone">
+            <input type="text" placeholder="请输入申请人手机号" v-model="userMessage.phone"
+            @blur="verifyNumber('phone')"
+            >
             <i v-if="errorType.indexOf('phone')!==-1" class="el-icon-error warning"></i>
           </div>
+        </li>
+        <li class="li_imgCode">
+          <span class="title">图片验证码</span>
+          <div class="inp inpsrc">
+            <input type="text" placeholder="请输入图形验证码" v-model="userMessage.graphCode">
+            <i v-if="errorType.indexOf('graphCode')!==-1" class="el-icon-error warning"></i>
+          </div>
+          <img class="imgcode" :src="captchaSrc" alt="" @click="changeSrc">
         </li>
         <li>
           <span class="title">短信验证码</span>
@@ -37,7 +47,7 @@
             <input type="text" placeholder="请输入验证码" v-model="userMessage.code">
             <i v-if="errorType.indexOf('code')!==-1" class="el-icon-error warning"></i>
           </div>
-          <el-button type="primary" @click="sendSMS">发送</el-button>
+            <el-button type="primary" @click="sendSMS">发送</el-button>
         </li>
       </ul>
       <div class="creditcard_tip">
@@ -51,20 +61,51 @@
 </template>
 
 <script>
-import axios from "axios";
+import * as service from "../service/index.js";
+// util.fetch({
+//   url:'https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=ACCESS_TOKEN',
+//   methods: 'get'
+// })
+// .then(res => {
+//   console.log(res)
+// })
 export default {
   data() {
     return {
       errorType: [],
+      captchaSrc: "",
       userMessage: {
         name: "",
         IdNumber: "",
         phone: "",
-        code: ""
+        code: "",
+        graphCode: ""
       }
     };
   },
   methods: {
+    getImgSrc() {
+      service.getImgSrc()
+        .then(res => {
+          this.captchaSrc = URL.createObjectURL(res);
+        });
+    },
+    changeSrc() {
+      this.getImgSrc();
+    },
+    sendSMS() {
+      service
+        .sendSMS({
+          mobile: this.userMessage.phone,
+          captcha: this.userMessage.graphCode
+        })
+        .then(res => {
+          if (res.code === 400) {
+            this.errorMsg.graphCode = "图形验证码错误";
+            this.getImgSrc();
+          }
+        });
+    },
     verifyNumber(type) {
       let reg = /^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/;
       let reg1 = /^(((13[0-9]{1})|(14[0-9]{1})|(15[0-9]{1})|(16[0-9]{1})|(17[0-9]{1})|(18[0-9]{1}))+\d{8})$/;
@@ -78,7 +119,7 @@ export default {
       }
       if (
         type === "phone" &&
-        !reg.test(this.userMessage.phone) &&
+        !reg1.test(this.userMessage.phone) &&
         this.userMessage.phone !== ""
       ) {
         this.tipError("手机号码格式不正确");
@@ -92,10 +133,21 @@ export default {
         type: "warning"
       });
     },
-    sendSMS() {
-      console.log("发送");
+    subMessage () {
+      service.sendInvitee({
+        mobile: this.userMessage.phone,
+        name: this.userMessage.name,
+        idcard: this.userMessage.IdNumber,
+        code: this.userMessage.code,
+        inviter_code:"d01691ce12ea9173efbc",
+        task_id:6
+      })
+      .then(res => {
+        console.log(res)
+      })
     },
     nextSub() {
+      this.errorType = []
       for (let attr in this.userMessage) {
         if (this.userMessage[attr] === "") {
           this.errorType.push(attr);
@@ -106,8 +158,13 @@ export default {
           this.errorType = [];
         }, 2000);
         return false;
+      } else {
+        this.subMessage()
       }
     }
+  },
+  mounted() {
+    this.getImgSrc()
   }
 };
 </script>
@@ -140,6 +197,9 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
+.creditcard .creditcard_content .creditcard_ul li:last-child{
+ display: -webkit-box!important;
+}
 .creditcard .creditcard_content .creditcard_ul li .title {
   font-size: 15px;
   color: #666666;
@@ -155,6 +215,18 @@ export default {
   color: #f56c6c;
 }
 .creditcard .creditcard_content .sendcode {
+}
+.creditcard .creditcard_content .creditcard_ul .li_imgCode{
+  display: flex;
+}
+.creditcard .creditcard_content .creditcard_ul .li_imgCode .title{
+  
+}
+.creditcard .creditcard_content .creditcard_ul .li_imgCode .inpsrc{
+  width:30%;
+}
+.creditcard .creditcard_content .creditcard_ul .li_imgCode img{
+  width:64px;
 }
 .creditcard .creditcard_content .creditcard_ul li .el-button {
   font-size: 10px;
@@ -176,6 +248,7 @@ export default {
   margin-top: 10px;
   margin-bottom: 30px;
   color: #979797;
+  font-size:12px;
 }
 .creditcard .creditcard_btn {
   width: 100%;

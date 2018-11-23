@@ -7,7 +7,7 @@
       </div>
     </div>
     <div class="withdraw_bottom">
-      <el-button type="primary">注册</el-button>
+      <el-button type="primary">提现</el-button>
     </div>
   </div>
 </template>

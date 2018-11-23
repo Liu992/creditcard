@@ -5,14 +5,27 @@
 </template>
 
 <script>
+import * as service from '../service/index.js';
 export default {
-  mounted () {
-    console.log(this.$route.params.id)
+  data(){
+    return {
+      userMessage: ""
+    }
   },
   methods: {
     toCreditCard () {
       this.$router.push({path:"/creditcard"})
+    },
+    getUser () {
+      service.getUser()
+      .then(res => {
+        this.userMessage = res
+      })
     }
+  },
+  mounted () {
+    this.getUser()
+    console.log(this.$route.params.id)
   }
 };
 </script>
